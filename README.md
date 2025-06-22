@@ -27,6 +27,6 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
   ### Make
   make CPU=6502 SYNTAX=oldstyle
 
-  This will create a executable called ''vasm6502_oldstyle''
+  This will create a executable called **vasm6502_oldstyle**
 
   
