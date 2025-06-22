@@ -31,6 +31,7 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
 
 # Common Commands
   ./vasm6502_oldstyle -Fbin -dotdir <input_file>
+  
   minipro -p AT28C256 -w a.out
   
   
