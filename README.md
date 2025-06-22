@@ -29,4 +29,8 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
 
   This will create a executable called **vasm6502_oldstyle**
 
+# Common Commands
+  ./vasm6502_oldstyle -Fbin -dotdir <input_file>
+  minipro -p AT28C256 -w a.out
+  
   
