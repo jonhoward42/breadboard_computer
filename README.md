@@ -1,7 +1,8 @@
 # Breadboard 6502 Computer
 Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
 
-# Minipro programmer for Ubuntu
+# Obtain the toolset
+## Minipro programmer for Ubuntu
   ### Dependencies
   sudo apt-get install build-essential pkg-config git libusb-1.0-0-dev zlib1g-dev
   
@@ -19,6 +20,13 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
   ### BASH completion
   sudo cp bash_completion.d/minipro /etc/bash_completion.d/
 
-# 6502 assembler
-  ## Download from:
+## 6502 assembler
+  ### Download from:
   http://sun.hasenbraten.de/vasm/index.php?view=relsrc
+
+  ### Make
+  make CPU=6502 SYNTAX=oldstyle
+
+  This will create a executable called ''vasm6502_oldstyle''
+
+  
