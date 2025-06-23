@@ -1,12 +1,12 @@
-IN          = $0200 ; Input buffer
+IN          = $0200 	; Input buffer
 
-ACIA_DATA   = $5000 ; W65C51S Data Register Address
-ACIA_STATUS = $5001 ; W65C51S Status Register Address
-ACIA_CMD    = $5002 ; W65C51S Command Register Address
-ACIA_CTRL   = $5003 ; W65C51S Control Register Address
+ACIA_DATA   = $5000 	; W65C51S Data Register Address
+ACIA_STATUS = $5001 	; W65C51S Status Register Address
+ACIA_CMD    = $5002 	; W65C51S Command Register Address
+ACIA_CTRL   = $5003 	; W65C51S Control Register Address
 
 RESET:
-		CLD			; Clear decimal arithmetic mode
+		CLD				; Clear decimal arithmetic mode
 		CLI
 		LDA	#$1F		; 8-N-1, 19200 baud
 		STA	ACIA_CTRL
@@ -18,7 +18,7 @@ NOTCR:
 		BEQ	BACKSPACE	; Yes
 		CMP	#$1B		; Escape key?
 		BEQ	ESCAPE		; Yes
-		INY			; Advance text index
+		INY				; Advance text index
 		BPL	NEXTCHAR	; Auto ESC if line longer than 127
 
 ESCAPE:
@@ -29,11 +29,12 @@ GETLINE:
 		LDA	#$0D		; Send CR
 		JSR	ECHO		; Output it
 
-BACKSPACE:	DEY			; Back up text index
+BACKSPACE:
+		DEY				; Back up text index
 		BMI	GETLINE		; Beyond start of line, reinitialise
 
 NEXTCHAR:
-		LDA 	ACIA_STATUS	; Check status
+		LDA ACIA_STATUS	; Check status
 		AND	#$08		; Key Ready?
 		BEQ	NEXTCHAR	; Loop until ready
 		LDA	ACIA_DATA	; Load Character. Bit7 will be '0'
@@ -44,15 +45,15 @@ NEXTCHAR:
 
 		LDY	#$FF		; Reset text index
 		LDA	#$00		; For XAM mode
-		TAX			; X=0
+		TAX				; X=0
 SETBLOCK:
-		ASL			; Extra Shift left to set mode to BLOK
+		ASL				; Extra Shift left to set mode to BLOK
 SETSTOR:
-		ASL			; Leaves $7B if setting STOR mode
+		ASL				; Leaves $7B if setting STOR mode
 SETMODE:
 		STA	MODE		; $00 = XAM, $74 = STOR, $B8 = BLOK XAM
 BLSKIP:
-		INY			; Advance text index
+		INY				; Advance text index
 NEXTITEM:
 		LDA	IN,Y		; Get character
 		CMP	#$0D		; CR?
@@ -63,34 +64,34 @@ NEXTITEM:
 		CMP	#$3A		; ":"?
 		BEQ	SETSTOR		; Set STOR mode
 		CMP	#$52		; "R"?
-		BEQ	RUN		; Yes, run user program
-		STX	L		; $00 -> L
-		STX	H		;    and H
+		BEQ	RUN			; Yes, run user program
+		STX	L			; $00 -> L
+		STX	H			;    and H
 		STY	YSAV		; Save Y for comparison
 
 NEXTHEX:
 		LDA	IN,Y		; Get character from hex test
 		EOR	#$30		; Map digits to $0-9
 		CMP	#$0A		; Digit?
-		BCC	DIG		; Yes
+		BCC	DIG			; Yes
 		ADC	#$88		; Map letter "A"-"F" to $FA-FF
 		CMP	#$FA		; Hex letter?
 		BCC	NOTHEX		; No, character not hex
 
 DIG:
 		ASL
-		ASL			; Hex digit to MSD of A
+		ASL				; Hex digit to MSD of A
 		ASL
 		ASL
 
 		LDX	#$04		; Shift count
 HEXSHIFT:
-		ASL			; Hex digit left, MSB to carry
-		ROL	L		; Rotate into LSD
-		ROL	H		; Rotate into MSD's
-		DEX			; Done 4 shifts?
+		ASL				; Hex digit left, MSB to carry
+		ROL	L			; Rotate into LSD
+		ROL	H			; Rotate into MSD's
+		DEX				; Done 4 shifts?
 		BNE	HEXSHIFT	; No, loop
-		INY			; Advance text index
+		INY				; Advance text index
 		BNE	NEXTHEX		; Always taken. Check next character for hex
 
 NOTHEX:
@@ -98,11 +99,11 @@ NOTHEX:
 		BEQ	ESCAPE		; Yes, generate ESC sequence.
 		BIT	MODE		; Test MODE byte.            
 		BVC	NOTSTOR		; B6=0 for STOR, 1 for XAM and BLOCK XAM
-		LDA	L		; LSD's of hex data.
+		LDA	L			; LSD's of hex data.
 		STA	(STL, X)	; Store at current "store index".
-		INC	STL		; Increment store index.
+		INC	STL			; Increment store index.
 		BNE	NEXTITEM	; Get next item. (no carry).
-		INC	STH		; Add carry to 'store index' high order.
+		INC	STH			; Add carry to 'store index' high order.
 
 TONEXTITEM:
 		JMP	NEXTITEM	; Get next command item.
@@ -118,7 +119,7 @@ SETADR:
 		LDA	L-1,X		; Copy hex data to
 		STA	STL-1,X		; "store index".
 		STA	XAML-1,X	; And to "XAM index'.
-		DEX			; Next of 2 bytes.
+		DEX				; Next of 2 bytes.
 		BNE	SETADR		; Loop unless X = 0.
 
 NXTPRNT:
@@ -136,9 +137,9 @@ PRDATA:
 		JSR	ECHO		; Output it.
 		LDA	(XAML,X)	; Get data byte at 'examine index".
 		JSR	PRBYTE		; Output it in hex format.
-XAMNEXT:	STX	MODE		; 0-> MODE (XAM mode).
+XAMNEXT:	STX	MODE	; 0-> MODE (XAM mode).
 		LDA	XAML
-		CMP	L		; Compare 'examine index" to hex data.
+		CMP	L			; Compare 'examine index" to hex data.
 		LDA	XAMH
 		SBC	H
 		BCS	TONEXTITEM	; Not less, so no more data to output.
@@ -151,13 +152,13 @@ MOD8CHK:
 		AND	#$07		; For MOD 8=0
 		BPL	NXTPRNT		; Always taken.
 PRBYTE:
-		PHA			; Save A for LSD.
+		PHA				; Save A for LSD.
 		LSR
 		LSR
-		LSR			; MSD to LSD position.
+		LSR				; MSD to LSD position.
 		LSR
 		JSR	PRHEX		; Output hex digit.
-		PLA			; Restore A.
+		PLA				; Restore A.
 
 PRHEX:
 		AND	#$0F		; Mask LSD for hex print.
@@ -168,12 +169,12 @@ PRHEX:
 
 ECHO:
 		STA	ACIA_DATA	; Output character
-		PHA			; Save A
+		PHA				; Save A
 		LDA	#$FF		; Initialise delay loop.
 TXDELAY:	DEC			; Decrement A
 		BNE	TXDELAY		; Until A gets to 0.
-		PLA			; Restore A.
-		RTS			; Return.
+		PLA				; Restore A.
+		RTS				; Return.
 
   .org $FFFA
 
