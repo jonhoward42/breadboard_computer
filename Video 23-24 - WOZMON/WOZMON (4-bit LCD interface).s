@@ -178,6 +178,6 @@ TXDELAY:	DEC			; Decrement A
 
   .org $FFFA
 
-		.word	$0F00		; NMI vector
-		.word	RESET		; RESET vector
-		.word	$0000		; IRQ vector
+		.word	$0F00	; NMI vector
+		.word	RESET	; RESET vector
+		.word	$0000	; IRQ vector
