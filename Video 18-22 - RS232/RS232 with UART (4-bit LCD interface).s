@@ -56,15 +56,22 @@ reset:
   lda #$0b          ; No parity, no echo, no interrupts
   sta ACIA_CMD      ; Set about to ACIA command register
 
-  ldx #0
+; ===================================================================================
+; Send an initial message over the serial interface
+; ===================================================================================
+  ldx #0            ; Load X register with 0 to start sending message
 send_msg:
-  lda message,x
-  beq done
-  jsr send_char
-  inx
-  jmp send_msg
-done:
+  lda message,x     ; Load character from message into A-register
+  beq done          ; If end of message, jump to done
+  jsr send_char     ; Send character to ACIA
+  inx               ; Increment X register to point to next character
+  jmp send_msg      ; Loop back to send next character
+done:               ; End of message reached
 
+; ===================================================================================
+; Wait for characters from the serial interface, print them to the LCD,
+; and echo them back over the serial interface
+; ===================================================================================
 rx_wait:
   lda ACIA_STATUS   ; Load ACIA Status register into A-register
   and #$08          ; Check RX buffer status flag
@@ -74,8 +81,14 @@ rx_wait:
   jsr send_char     ; Echo received character back over serial interface
   jmp rx_wait
 
+; ===================================================================================
+; Startup message
+; ===================================================================================
 message: .asciiz "Jon's 6502 Breadboard Computer"
 
+; ===================================================================================
+; Send character to ACIA and wait for transmission to complete
+; ===================================================================================
 send_char:
   sta ACIA_DATA     ; Send A-register back to ACIA data register
   pha               ; Push A-register onto the stack
@@ -87,15 +100,18 @@ tx_wait:
   pla               ; Pull A-register value back from the stack
   rts
 
-tx_delay:
-  phx
-  ldx #100
-tx_delay_1:
-  dex
-  bne tx_delay_1
-  plx
-  rts
+tx_delay:           ; Introduce a delay to accomodate ACIA hardware bug
+  phx               ; Push X-register onto the stack
+  ldx #100          ; Load X-register with 100 (arbitrary delay value)
+tx_delay_1:         ; Loop to create a delay
+  dex               ; Decrement X-register
+  bne tx_delay_1    ; Branch if X-register is not zero
+  plx               ; Pull X-register value back from the stack
+  rts               ; Return from subroutine
 
+; ===================================================================================
+; LCD Functions
+; ===================================================================================
 lcd_wait:
   pha               ; Push a-register onto the stack (preserving previous data)
   lda #%11110000    ; Temporarily set LCD data to 'input'
@@ -127,60 +143,68 @@ lcd_busy:           ; https://gist.github.com/TheMagicNacho/caa694f45e25e249199f
   rts
 
 lcd_init:
-  lda #%00000010     ; Set 4-bit mode
-  sta PORTB          ; Write to Port B
-  ora #E             ; Set 'Enable'
-  sta PORTB          ; Write to Port B
-  and #%00001111     ; ??? Not sure about this ???
-  sta PORTB          ; Write to Port B
-  rts
+  lda #%00000010    ; Set 4-bit mode
+  sta PORTB         ; Write to Port B
+  ora #E            ; Set 'Enable'
+  sta PORTB         ; Write to Port B
+  and #%00001111    ; ??? Not sure about this ???
+  sta PORTB         ; Write to Port B
+  rts               ; Return from subroutine
 
 lcd_instruction:
-  jsr lcd_wait
-  pha
-  lsr
-  lsr
-  lsr
-  lsr            ; Send high 4 bits
-  sta PORTB
-  ora #E         ; Set E bit to send instruction
-  sta PORTB
-  eor #E         ; Clear E bit
-  sta PORTB
-  pla
-  and #%00001111 ; Send low 4 bits
-  sta PORTB
-  ora #E         ; Set E bit to send instruction
-  sta PORTB
-  eor #E         ; Clear E bit
-  sta PORTB
-  rts
+  jsr lcd_wait      ; Wait for LCD to be ready
+  pha               ; Push A-register onto the stack
+  lsr               ; Shift right 4 times to get high 4 bits
+  lsr               ;
+  lsr               ;
+  lsr               ;
+  sta PORTB         ; Write high 4 bits to Port B
+  ora #E            ; Set E bit to send instruction
+  sta PORTB         ; Write to Port B
+  eor #E            ; Clear E bit
+  sta PORTB         ; Write to Port B
+  pla               ; Pull A-register value back from the stack
+  and #%00001111    ; Send low 4 bits
+  sta PORTB         ; Write low 4 bits to Port B
+  ora #E            ; Set E bit to send instruction
+  sta PORTB         ; Write to Port B
+  eor #E            ; Clear E bit
+  sta PORTB         ; Write to Port B
+  rts               ; Return from subroutine
 
 print_char:
-  jsr lcd_wait
-  pha
-  lsr
-  lsr
-  lsr
-  lsr             ; Send high 4 bits
-  ora #RS         ; Set RS
-  sta PORTB
-  ora #E          ; Set E bit to send instruction
-  sta PORTB
-  eor #E          ; Clear E bit
-  sta PORTB
-  pla
-  pha
-  and #%00001111  ; Send low 4 bits
-  ora #RS         ; Set RS
-  sta PORTB
-  ora #E          ; Set E bit to send instruction
-  sta PORTB
-  eor #E          ; Clear E bit
-  sta PORTB
-  pla
-  rts
+  jsr lcd_wait      ; Wait for LCD to be ready
+  pha               ; Push A-register onto the stack
+  lsr               ; Shift right 4 times to get high 4 bits
+  lsr               ;
+  lsr               ;
+  lsr               ;
+  ora #RS           ; Set RS
+  sta PORTB         ; Write high 4 bits to Port B
+  ora #E            ; Set E bit to send instruction
+  sta PORTB         ; Write to Port B
+  eor #E            ; Clear E bit
+  sta PORTB         ; Write to Port B
+  pla               ; Pull A-register value back from the stack
+  pha               ; Push A-register onto the stack again
+  and #%00001111    ; Send low 4 bits
+  ora #RS           ; Set RS
+  sta PORTB         ; Write low 4 bits to Port B
+  ora #E            ; Set E bit to send instruction
+  sta PORTB         ; Write to Port B
+  eor #E            ; Clear E bit
+  sta PORTB         ; Write to Port B
+  pla               ; Pull A-register value back from the stack
+  rts               ; Return from subroutine
 
+; ===================================================================================
+; End of program
+; ===================================================================================
+; The program ends here, and the reset vector points to the reset label.
+; The reset vector is used by the CPU to start executing the program when it is powered
+; on or reset. The program will start executing from the reset label, which initializes
+; the stack, VIA, LCD, and ACIA, and then enters a loop
+; ===================================================================================
   .org $fffc
   .word reset
   .word $0000
