@@ -29,8 +29,14 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
 
   This will create a executable called **vasm6502_oldstyle**
 
+## CC65 Assembler & Linker
+  ### Download from:
+  https://github.com/cc65/cc65
+
 # Common Commands
   ./vasm6502_oldstyle -Fbin -dotdir -c02 <input_file>
+  ./ca65 <input_file> ; This results in <input_file.o>
+  ./ld65 -C bios.cfg <input_file.o> -Ln bios.sym
   
   minipro -p AT28C256 -w a.out
   
