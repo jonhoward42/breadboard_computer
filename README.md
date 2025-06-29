@@ -21,7 +21,7 @@ Code for 8-bit Breadboard computer (based on Ben Eater's project @ eater.net)
   sudo cp udev/*.rules /etc/udev/rules.d/
   sudo udevadm trigger
   sudo usermod -a -G plugdev YOUR-USER
-  111
+  ```
 
   ### BASH completion
   ```
