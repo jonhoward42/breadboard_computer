@@ -12,17 +12,13 @@ MODE  = $2B                            ; $00=XAM, $7F=STOR, $AE=BLOCK XAM
 
 IN    = $0200                          ; Input buffer
 
-ACIA_DATA   = $5000 		; W65C51S Data Register Address
-ACIA_STATUS = $5001 		; W65C51S Status Register Address
-ACIA_CMD    = $5002 		; W65C51S Command Register Address
-ACIA_CTRL   = $5003 		; W65C51S Control Register Address
-
 RESET:
+                CLD                    ; Clear decimal mode.
+                CLI                    ; Clear interrupt disable flag.
                 LDA     #$1F           ; 8-N-1, 19200 baud.
                 STA     ACIA_CTRL
-                LDA     #$0B           ; No parity, no echo, no interrupts.
-                STA     ACIA_CMD
-                LDA     #$1B           ; Begin with escape.
+                LDY     #$8B          ; No parity, no echo, no interrupts.
+                STY     ACIA_CMD
 
 NOTCR:
                 CMP     #$08           ; Backspace key?
@@ -186,8 +182,3 @@ TXDELAY:        DEC                    ; Decrement A.
                 BNE     TXDELAY        ; Until A gets to 0.
                 PLA                    ; Restore A.
                 RTS                    ; Return.
-
-.segment "RESETVEC"
-                .word   $0F00          ; NMI vector
-                .word   RESET          ; RESET vector
-                .word   $0000          ; IRQ vector
