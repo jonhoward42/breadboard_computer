@@ -79,6 +79,12 @@
 .endif
 		keyword_rts "NEW", NEW
 
+.ifdef EATER
+		keyword_rts "LCDCMD", LCDCMD
+		keyword_rts "LCDPRINT", LCDPRINT
+		keyword_rts "LCDCLS", LCDCLS
+.endif
+
 		count_tokens
 
 		keyword	"TAB(", TOKEN_TAB
