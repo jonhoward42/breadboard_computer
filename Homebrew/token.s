@@ -83,6 +83,7 @@
 		keyword_rts "LCDCMD", LCDCMD
 		keyword_rts "LCDPRINT", LCDPRINT
 		keyword_rts "LCDCLS", LCDCLS
+		keyword_rts "LCDCR", LCDCR
 		keyword_rts "WOZMON", LOADWOZMON
 		keyword_rts "BEEP", BEEP
 .endif

@@ -124,7 +124,8 @@ COLD_START:
         sta     Z18
   .endif
   .ifdef EATER
-        jsr     LCDINIT
+        ; LCDINIT is now called from the BIOS reset routine
+        ;jsr     LCDINIT
   .endif
 .endif
 

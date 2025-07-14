@@ -149,4 +149,9 @@ LCDCLS:
         jsr lcd_instruction
         rts               ; Return from subroutine
 
+LCDCR:
+        lda #%10101000    ; Set cursor to home position (cmd 168), line 2
+        jsr lcd_instruction
+        rts               ; Return from subroutine
+
 .endif
