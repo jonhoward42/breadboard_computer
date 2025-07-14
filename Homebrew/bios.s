@@ -48,7 +48,7 @@ ACR         = $600B             ; W65C22S (VIA/BEEP) Timer 1 (Aux Control Regist
 
 ; LCD Splash Screen Message
 LCD_SPLASH1:  .asciiz "-= Jon's 6502 =-"
-LCD_SPLASH2:  .asciiz "    SW v1.29    "
+LCD_SPLASH2:  .asciiz "    SW v1.29"
 
 ; Reset Routine - Referenced by the reset vector.
 RESET:

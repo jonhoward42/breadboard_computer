@@ -15,7 +15,6 @@ The code held here essentially mirrors that of Ben Eater's series (up to Video 2
 2. The new reset code (now in the BIOS) jumps to "COLD_START", immediately loading MS BASIC
 
 3. Additional commands added to MS Basic:
-    - LCDCR     - CR to the LCD (jump to line 2)
     - LCDCLS    - Clears the LCD screen
     - WOZMON    - Jumpts to LOADWOZMON (now in the BIOS) and loads WOZMON from BASIC
 
